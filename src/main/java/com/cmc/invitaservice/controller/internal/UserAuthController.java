@@ -1,8 +1,12 @@
-package com.cmc.invitaservice.controller.external;
+package com.cmc.invitaservice.controller.internal;
 
 import com.cmc.invitaservice.models.external.request.ChangePasswordRequest;
+import com.cmc.invitaservice.models.external.request.LogoutRequest;
+import com.cmc.invitaservice.models.external.request.RefreshTokenRequest;
+import com.cmc.invitaservice.models.external.response.RefreshTokenResponse;
 import com.cmc.invitaservice.response.GeneralResponse;
 import com.cmc.invitaservice.service.UserService;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,15 +23,19 @@ public class UserAuthController {
         this.userService = userService;
     }
 
-    @PostMapping("auth/changepassword")
+    @PostMapping("/auth/changepassword")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<GeneralResponse<Object>> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest){
         return userService.changePassword(changePasswordRequest);
     }
 
-    @GetMapping("auth/logout")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<GeneralResponse<Object>> logout(){
-        return userService.logoutAccount();
+    @PostMapping("/auth/logout")
+    public ResponseEntity<GeneralResponse<Object>> logout(@RequestBody LogoutRequest logoutRequest){
+        return userService.logoutAccount(logoutRequest);
+    }
+
+    @PostMapping("/auth/refresh")
+    public ResponseEntity<GeneralResponse<RefreshTokenResponse>> refresh(@RequestBody RefreshTokenRequest request){
+        return userService.refreshToken(request);
     }
 }

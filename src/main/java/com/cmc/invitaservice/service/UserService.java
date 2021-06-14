@@ -1,6 +1,7 @@
 package com.cmc.invitaservice.service;
 
 import com.cmc.invitaservice.models.external.request.*;
+import com.cmc.invitaservice.models.external.response.RefreshTokenResponse;
 import com.cmc.invitaservice.response.GeneralResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -9,7 +10,8 @@ import java.util.Map;
 
 public interface UserService {
     ResponseEntity<GeneralResponse<Object>> loginAccount(LoginRequest loginRequest);
-    ResponseEntity<GeneralResponse<Object>> logoutAccount();
+    ResponseEntity<GeneralResponse<Object>> logoutAccount(LogoutRequest logoutRequest);
+    ResponseEntity<GeneralResponse<RefreshTokenResponse>> refreshToken(RefreshTokenRequest request);
     ResponseEntity<GeneralResponse<Object>> verifySignUp(Map<String, String> requestParam);
     ResponseEntity<GeneralResponse<Object>> changePassword(ChangePasswordRequest changePasswordRequest);
     ResponseEntity<GeneralResponse<Object>> signupAccount(CreateAccountRequest createAccountRequest, HttpServletRequest request);

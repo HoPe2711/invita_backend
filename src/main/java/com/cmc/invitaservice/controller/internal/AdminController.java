@@ -1,4 +1,4 @@
-package com.cmc.invitaservice.controller.external;
+package com.cmc.invitaservice.controller.internal;
 
 import com.cmc.invitaservice.models.external.request.UpdateAccountRequest;
 import com.cmc.invitaservice.response.GeneralResponse;

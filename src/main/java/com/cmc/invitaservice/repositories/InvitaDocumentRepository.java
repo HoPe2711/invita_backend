@@ -8,4 +8,6 @@ import java.util.List;
 public interface InvitaDocumentRepository extends JpaRepository<InvitaDocument,Long> {
     InvitaDocument findInvitaDocumentById(Long id);
     List<InvitaDocument> findInvitaDocumentByApplicationUserUsername(String username);
+    List<InvitaDocument> findInvitaDocumentsByInvitaTemplate_Id(Long id);
+    List<InvitaDocument> findInvitaDocumentsByApplicationUser_UsernameAndInvitaTemplate_Id(String username, Long id);
 }

@@ -1,4 +1,4 @@
-package com.cmc.invitaservice.controller.external;
+package com.cmc.invitaservice.controller.internal;
 
 import com.cmc.invitaservice.models.external.request.CreateDocumentRequest;
 import com.cmc.invitaservice.models.external.request.UpdateDocumentRequest;
@@ -35,9 +35,20 @@ public class DocumentController {
         return documentService.deleteDocument(documentId);
     }
 
+    @GetMapping("/document_temp/{templateId}")
+    public ResponseEntity<GeneralResponse<Object>> getDocumentByTemplate(@PathVariable(name="templateId") Long templateId) {
+        return documentService.getDocumentByTemplate(templateId);
+    }
+
     @GetMapping("/document/{documentId}")
     public  ResponseEntity<GeneralResponse<Object>> getDocumentByName(@PathVariable(name="documentId") Long documentId){
         return documentService.getDocumentById(documentId);
+    }
+
+    @GetMapping("/document_temp/{templateId}/{documentId}")
+    public ResponseEntity<GeneralResponse<Object>> addSubDocment(@PathVariable(name="templateId") Long templateId,
+                                                                 @PathVariable(name="documentId") Long documentId) {
+        return documentService.addSubDocument(templateId,documentId);
     }
 
     @PostMapping("document")

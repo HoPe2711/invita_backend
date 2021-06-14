@@ -1,6 +1,8 @@
 package com.cmc.invitaservice.service.implement;
 
 import com.cmc.invitaservice.models.external.request.CreateTemplateRequest;
+import com.cmc.invitaservice.models.external.response.GetAllChildTemplateResponse;
+import com.cmc.invitaservice.models.external.response.GetAllParentTemplateResponse;
 import com.cmc.invitaservice.models.external.response.GetAllTemplateResponse;
 import com.cmc.invitaservice.repositories.InvitaTemplateRepository;
 import com.cmc.invitaservice.repositories.RefreshTokenRepository;
@@ -18,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -57,12 +60,31 @@ public class TemplateServiceImplement implements TemplateService {
     @Override
     public ResponseEntity<GeneralResponse<Object>> deleteTemplate(Long id){
         ResponseEntity<GeneralResponse<Object>> check = checkLogin("admin");
-        if (check != null) return  check;
+        if (check != null) return check;
         InvitaTemplate invitaTemplate = invitaTemplateRepository.findInvitaTemplateById(id);
         if (invitaTemplate == null)
             return ResponseFactory.error(HttpStatus.valueOf(400), ResponseStatusEnum.TEMPLATE_EXIST);
         invitaTemplateRepository.deleteById(id);
         return ResponseFactory.success();
+    }
+
+    @Override
+    public ResponseEntity<GeneralResponse<Object>> getParentTemplate(){
+        Set<InvitaTemplate> invitaTemplateList = invitaTemplateRepository.findAllByInvitaTemplateListNotNull();
+        GetAllParentTemplateResponse getAllParentTemplateResponse = new GetAllParentTemplateResponse();
+        getAllParentTemplateResponse.setListTemplate(invitaTemplateList);
+        return ResponseFactory.success(getAllParentTemplateResponse);
+    }
+
+    @Override
+    public ResponseEntity<GeneralResponse<Object>> getChildTemplateByTemplateId(Long templateId){
+        String username = getUsername();
+        ResponseEntity<GeneralResponse<Object>> check = checkLogin(username);
+        if (check != null) return check;
+        List<InvitaTemplate> invitaTemplateList = invitaTemplateRepository.findAllByInvitaTemplate_Id(templateId);
+        GetAllChildTemplateResponse getAllChildTemplateResponse = new GetAllChildTemplateResponse();
+        getAllChildTemplateResponse.setListFeedback(invitaTemplateList);
+        return ResponseFactory.success(getAllChildTemplateResponse);
     }
 
     @Override

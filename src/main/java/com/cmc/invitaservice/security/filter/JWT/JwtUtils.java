@@ -1,8 +1,5 @@
 package com.cmc.invitaservice.security.filter.JWT;
 
-
-import com.cmc.invitaservice.repositories.RefreshTokenRepository;
-import com.cmc.invitaservice.repositories.entities.RefreshToken;
 import com.cmc.invitaservice.security.filter.service.UserDetailsImplement;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
@@ -19,38 +16,22 @@ public class JwtUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    private final RefreshTokenRepository refreshTokenRepository;
-
-    public JwtUtils(RefreshTokenRepository refreshTokenRepository) {
-        this.refreshTokenRepository = refreshTokenRepository;
-    }
-
-    public String generateJWT(Authentication authentication){
-
-        UserDetailsImplement userPrincipal = (UserDetailsImplement) authentication.getPrincipal();
-
+    public String generateJWTByUsername(String username){
         return Jwts.builder()
-                .setSubject((userPrincipal.getUsername()))
+                .setSubject((username))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
     }
 
-    public String generateRefreshToken(Authentication authentication){
+    public String generateJWT(Authentication authentication){
 
         UserDetailsImplement userPrincipal = (UserDetailsImplement) authentication.getPrincipal();
-        Date date = new Date((new Date()).getTime() + EXPIRATION_TIME_REFRESH);
-        String jwts = Jwts.builder()
-                .setSubject((userPrincipal.getUsername()))
-                .setIssuedAt(new Date())
-                .setExpiration(date)
-                .signWith(SignatureAlgorithm.HS512, SECRET1)
-                .compact();
-        RefreshToken refreshToken = new RefreshToken(jwts, userPrincipal.getUsername(), date);
-        refreshTokenRepository.save(refreshToken);
-        return jwts;
+
+        return generateJWTByUsername(userPrincipal.getUsername());
     }
+
 
     public String getUserNameFromJwtToken(String token, String secret) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();

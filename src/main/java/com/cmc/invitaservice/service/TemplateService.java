@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 
 public interface TemplateService {
     ResponseEntity<GeneralResponse<Object>> getAllTemplate();
+    ResponseEntity<GeneralResponse<Object>> getChildTemplateByTemplateId(Long id);
+    ResponseEntity<GeneralResponse<Object>> getParentTemplate();
     ResponseEntity<GeneralResponse<Object>> deleteTemplate(Long id);
     ResponseEntity<GeneralResponse<Object>> getTemplateByTemplateId(Long id);
     ResponseEntity<GeneralResponse<Object>> addTemplate(CreateTemplateRequest createTemplateRequest);

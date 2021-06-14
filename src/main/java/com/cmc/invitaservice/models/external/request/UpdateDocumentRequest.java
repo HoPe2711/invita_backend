@@ -7,9 +7,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 @NotBlank
 public class UpdateDocumentRequest {
-    private Long templateId;
     private String documentName;
     private String filledInformation;
     private String note;
-    private Long parentId;
 }

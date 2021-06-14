@@ -10,5 +10,5 @@ import java.util.List;
 public class GetAllTemplateResponse {
     @JsonIgnore
     List<InvitaTemplate> listTemplate;
-
 }
+    

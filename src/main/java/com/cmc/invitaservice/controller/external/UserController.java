@@ -1,4 +1,4 @@
-package com.cmc.invitaservice.controller.internal;
+package com.cmc.invitaservice.controller.external;
 
 import com.cmc.invitaservice.models.external.request.CreateAccountRequest;
 import com.cmc.invitaservice.models.external.request.ForgotPasswordRequest;

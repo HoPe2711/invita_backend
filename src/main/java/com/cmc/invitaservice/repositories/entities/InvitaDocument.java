@@ -3,13 +3,13 @@ package com.cmc.invitaservice.repositories.entities;
 import com.cmc.invitaservice.models.external.request.CreateDocumentRequest;
 import com.cmc.invitaservice.models.external.request.UpdateDocumentRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Getter
@@ -25,7 +25,7 @@ public class InvitaDocument extends BaseEntity{
 
     @ManyToOne
     @JoinColumn(name = "template_id", referencedColumnName = "id")
-    @JsonIgnore//Properties(value = "invitaDocumentList", allowSetters = true)
+    @JsonIgnoreProperties(value = "invitaDocumentList", allowSetters = true)
     private InvitaTemplate invitaTemplate;
 
     @Column(name = "document_name")
@@ -42,14 +42,6 @@ public class InvitaDocument extends BaseEntity{
     @JsonIgnore//Properties(value = "invitaDocumentList", allowSetters = true)
     private ApplicationUser applicationUser;
 
-    @ManyToOne
-    @JoinColumn(name = "parent_id", referencedColumnName = "id")
-    @JsonIgnore//Properties(value = "invitaDocumentList", allowSetters = true)
-    private InvitaDocument invitaDocument;
-
-    @OneToMany(mappedBy = "invitaDocument", cascade = CascadeType.ALL)
-    @JsonIgnore//Properties(value = "invitaDocument", allowSetters = true)
-    private List<InvitaDocument> invitaDocumentList;
 
     public void setUpdateDocumentRequest(UpdateDocumentRequest updateDocumentRequest){
         this.documentName = updateDocumentRequest.getDocumentName();

@@ -1,4 +1,4 @@
-package com.cmc.invitaservice.controller.external;
+package com.cmc.invitaservice.controller.internal;
 
 import com.cmc.invitaservice.models.external.request.CreateTemplateRequest;
 import com.cmc.invitaservice.response.GeneralResponse;
@@ -29,6 +29,18 @@ public class TemplateController {
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<GeneralResponse<Object>> getAllTemplate() {
         return templateService.getAllTemplate();
+    }
+
+    @GetMapping("/template_child/{templateId}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<GeneralResponse<Object>> getChildTemplateById(@PathVariable(name="templateId") Long templateId){
+        return templateService.getChildTemplateByTemplateId(templateId);
+    }
+
+    @GetMapping("/template_parent")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<GeneralResponse<Object>> getParentTemplate(){
+        return templateService.getParentTemplate();
     }
 
     @DeleteMapping("/template/{templateId}")

@@ -3,12 +3,14 @@ package com.cmc.invitaservice.service.implement;
 import com.cmc.invitaservice.mailsender.EmailService;
 import com.cmc.invitaservice.models.external.request.*;
 import com.cmc.invitaservice.models.external.response.LoginResponse;
+import com.cmc.invitaservice.models.external.response.RefreshTokenResponse;
 import com.cmc.invitaservice.redis.service.IRedisCaching;
 import com.cmc.invitaservice.repositories.ApplicationUserRepository;
 import com.cmc.invitaservice.repositories.RefreshTokenRepository;
 import com.cmc.invitaservice.repositories.RoleRepository;
 import com.cmc.invitaservice.repositories.entities.ApplicationUser;
 import com.cmc.invitaservice.repositories.entities.ERole;
+import com.cmc.invitaservice.repositories.entities.RefreshToken;
 import com.cmc.invitaservice.repositories.entities.Role;
 import com.cmc.invitaservice.response.GeneralResponse;
 import com.cmc.invitaservice.response.ResponseFactory;
@@ -16,7 +18,9 @@ import com.cmc.invitaservice.response.ResponseStatusEnum;
 import com.cmc.invitaservice.security.filter.JWT.JwtUtils;
 import com.cmc.invitaservice.security.filter.service.UserDetailsImplement;
 import com.cmc.invitaservice.service.UserService;
+import com.cmc.invitaservice.service.config.RefreshTokenService;
 import com.cmc.invitaservice.service.config.ValidationService;
+import com.cmc.invitaservice.service.config.refreshToken.TokenRefreshException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -39,7 +43,7 @@ import static com.cmc.invitaservice.security.SecurityConstants.MANAGEMENT_MAIL;
 
 @Service
 @Slf4j
-public class UserServiceImplement implements UserService{
+public class UserServiceImplement implements UserService {
 
     @Value("${token.resetUrl}")
     private String resetUrl;
@@ -68,7 +72,9 @@ public class UserServiceImplement implements UserService{
 
     private final EmailService emailService;
 
-    public UserServiceImplement(ApplicationUserRepository applicationUserRepository, BCryptPasswordEncoder bCryptPasswordEncoder, RoleRepository roleRepository, ValidationService validationService, IRedisCaching iRedisCaching, AuthenticationManager authenticationManager, JwtUtils jwtUtils, EmailService emailService,    RefreshTokenRepository refreshTokenRepository) {
+    private final RefreshTokenService refreshTokenService;
+
+    public UserServiceImplement(ApplicationUserRepository applicationUserRepository, BCryptPasswordEncoder bCryptPasswordEncoder, RoleRepository roleRepository, ValidationService validationService, IRedisCaching iRedisCaching, AuthenticationManager authenticationManager, JwtUtils jwtUtils, EmailService emailService, RefreshTokenRepository refreshTokenRepository, RefreshTokenService refreshTokenService) {
         this.applicationUserRepository = applicationUserRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.roleRepository = roleRepository;
@@ -78,9 +84,10 @@ public class UserServiceImplement implements UserService{
         this.jwtUtils = jwtUtils;
         this.emailService = emailService;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.refreshTokenService = refreshTokenService;
     }
 
-    private Long addAccount(CreateAccountRequest createAccountRequest){
+    private Long addAccount(CreateAccountRequest createAccountRequest) {
         Set<Role> roles = new HashSet<>();
         ApplicationUser applicationUser = new ApplicationUser();
         applicationUser.setCreateAccountRequest(createAccountRequest);
@@ -92,14 +99,16 @@ public class UserServiceImplement implements UserService{
 
     private ResponseEntity<GeneralResponse<Object>> checkAccount(LoginRequest loginRequest) {
         ApplicationUser applicationUser = applicationUserRepository.findByUsername(loginRequest.getUsername());
-        if (applicationUser == null) return ResponseFactory.error(HttpStatus.valueOf(403), ResponseStatusEnum.NOT_EXIST);
+        if (applicationUser == null)
+            return ResponseFactory.error(HttpStatus.valueOf(403), ResponseStatusEnum.NOT_EXIST);
         if (!applicationUser.isStatus())
             return ResponseFactory.error(HttpStatus.valueOf(403), ResponseStatusEnum.VERIFIED_EMAIL);
-        if (applicationUser.isStatus() && new BCryptPasswordEncoder().matches(loginRequest.getPassword(), applicationUser.getPassword())) return null;
+        if (applicationUser.isStatus() && new BCryptPasswordEncoder().matches(loginRequest.getPassword(), applicationUser.getPassword()))
+            return null;
         return ResponseFactory.error(HttpStatus.valueOf(403), ResponseStatusEnum.WRONG_USERNAME_OR_PASSWORD);
     }
 
-    private void sendMail(String mail, String url, String token){
+    private void sendMail(String mail, String url, String token) {
         CompletableFuture.runAsync(() ->
                 emailService.sendEmail(MANAGEMENT_MAIL,
                         mail,
@@ -110,7 +119,7 @@ public class UserServiceImplement implements UserService{
     }
 
     @Override
-    public ResponseEntity<GeneralResponse<Object>> changePassword(ChangePasswordRequest changePasswordRequest){
+    public ResponseEntity<GeneralResponse<Object>> changePassword(ChangePasswordRequest changePasswordRequest) {
         ResponseEntity<GeneralResponse<Object>> validateResult = validationService.validateChangePassword(changePasswordRequest.getNewPassword(), changePasswordRequest.getRetypeNewPassword());
         if (validateResult != null) return validateResult;
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -125,7 +134,7 @@ public class UserServiceImplement implements UserService{
     }
 
     @Override
-    public ResponseEntity<GeneralResponse<Object>> loginAccount(LoginRequest loginRequest){
+    public ResponseEntity<GeneralResponse<Object>> loginAccount(LoginRequest loginRequest) {
         ResponseEntity<GeneralResponse<Object>> loginResult = checkAccount(loginRequest);
         if (loginResult != null) return loginResult;
         if (refreshTokenRepository.findByUsername(loginRequest.getUsername()) != null)
@@ -134,13 +143,27 @@ public class UserServiceImplement implements UserService{
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJWT(authentication);
-        String jwt1 = jwtUtils.generateRefreshToken(authentication);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(loginRequest.getUsername());
+        String jwt1 = refreshToken.getToken();
         UserDetailsImplement userDetailsImplement = (UserDetailsImplement) authentication.getPrincipal();
         List<String> roles = userDetailsImplement.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
         LoginResponse loginResponse = new LoginResponse(jwt1, jwt, userDetailsImplement.getId(), userDetailsImplement.getUsername(), userDetailsImplement.getEmail(), roles);
         return ResponseFactory.success(loginResponse, LoginResponse.class);
+    }
+
+    @Override
+    public ResponseEntity<GeneralResponse<RefreshTokenResponse>> refreshToken(RefreshTokenRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken -> {
+                    String token = jwtUtils.generateJWTByUsername(RefreshToken.getUsername());
+                    return ResponseFactory.success(new RefreshTokenResponse(token));
+                })
+                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
+                        "Refresh token is wrong!"));
     }
 
     private ResponseEntity<GeneralResponse<Object>> validateSignUp(CreateAccountRequest createAccountRequest){
@@ -208,9 +231,8 @@ public class UserServiceImplement implements UserService{
     }
 
     @Override
-    public ResponseEntity<GeneralResponse<Object>> logoutAccount(){
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        refreshTokenRepository.deleteByUsername(userDetails.getUsername());
+    public ResponseEntity<GeneralResponse<Object>> logoutAccount(LogoutRequest logoutRequest){
+        refreshTokenRepository.deleteByToken(logoutRequest.getToken());
         return ResponseFactory.success("Logout successfully!");
     }
 }

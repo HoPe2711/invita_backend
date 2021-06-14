@@ -22,7 +22,8 @@ public enum ResponseStatusEnum {
     ACCOUNT_LOGGED_IN("E-013","Account is logged in"),
     VERIFIED_EMAIL("E-014", "Verify email to register completely"),
     DOCUMENT_EXIST("E-015", "Document not exists"),
-    TEMPLATE_EXIST("E-016", "Template not exists");
+    TEMPLATE_EXIST("E-016", "Template not exists"),
+    REFRESH_EXIST("E-017", "Token is wrong");
 
     private final String code;
     private final String message;
