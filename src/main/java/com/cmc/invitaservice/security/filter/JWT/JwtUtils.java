@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
-import static com.cmc.invitaservice.security.SecurityConstants.*;
+import static com.cmc.invitaservice.security.SecurityConstants.EXPIRATION_TIME;
+import static com.cmc.invitaservice.security.SecurityConstants.SECRET;
 
 @Component
 public class JwtUtils {

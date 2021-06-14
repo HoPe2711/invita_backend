@@ -1,10 +1,7 @@
 package com.cmc.invitaservice.security.filter.authorization;
 
-import com.cmc.invitaservice.repositories.RefreshTokenRepository;
-import com.cmc.invitaservice.repositories.entities.RefreshToken;
 import com.cmc.invitaservice.security.filter.JWT.JwtUtils;
 import com.cmc.invitaservice.security.filter.service.UserDetailsServiceImplement;
-import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +23,6 @@ import static com.cmc.invitaservice.security.SecurityConstants.*;
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsServiceImplement userDetailsServiceImplement;
-
-    @Autowired
-    private RefreshTokenRepository refreshTokenRepository;
 
     @Autowired
     private JwtUtils jwtUtils;

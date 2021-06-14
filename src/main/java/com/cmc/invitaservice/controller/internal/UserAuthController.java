@@ -6,11 +6,13 @@ import com.cmc.invitaservice.models.external.request.RefreshTokenRequest;
 import com.cmc.invitaservice.models.external.response.RefreshTokenResponse;
 import com.cmc.invitaservice.response.GeneralResponse;
 import com.cmc.invitaservice.service.UserService;
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(value = "*")
 @Slf4j
