@@ -1,6 +1,6 @@
 package com.cmc.invitaservice.controller.internal;
 
-import com.cmc.invitaservice.models.external.request.UpdateAccountRequest;
+import com.cmc.invitaservice.models.request.UpdateAccountRequest;
 import com.cmc.invitaservice.response.GeneralResponse;
 import com.cmc.invitaservice.service.AdminService;
 import lombok.extern.slf4j.Slf4j;

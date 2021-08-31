@@ -1,7 +1,7 @@
 package com.cmc.invitaservice.controller.internal;
 
-import com.cmc.invitaservice.models.external.request.CreateDocumentRequest;
-import com.cmc.invitaservice.models.external.request.UpdateDocumentRequest;
+import com.cmc.invitaservice.models.request.CreateDocumentRequest;
+import com.cmc.invitaservice.models.request.UpdateDocumentRequest;
 import com.cmc.invitaservice.response.GeneralResponse;
 import com.cmc.invitaservice.service.DocumentService;
 import lombok.extern.slf4j.Slf4j;

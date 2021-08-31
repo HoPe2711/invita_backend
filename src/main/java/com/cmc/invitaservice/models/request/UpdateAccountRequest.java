@@ -1,4 +1,4 @@
-package com.cmc.invitaservice.models.external.request;
+package com.cmc.invitaservice.models.request;
 
 import lombok.Data;
 

@@ -1,6 +1,6 @@
 package com.cmc.invitaservice.service;
 
-import com.cmc.invitaservice.models.external.request.CreateTemplateRequest;
+import com.cmc.invitaservice.models.request.CreateTemplateRequest;
 import com.cmc.invitaservice.response.GeneralResponse;
 import org.springframework.http.ResponseEntity;
 

@@ -1,7 +1,7 @@
 package com.cmc.invitaservice.repositories.entities;
 
-import com.cmc.invitaservice.models.external.request.CreateDocumentRequest;
-import com.cmc.invitaservice.models.external.request.UpdateDocumentRequest;
+import com.cmc.invitaservice.models.request.CreateDocumentRequest;
+import com.cmc.invitaservice.models.request.UpdateDocumentRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;

@@ -1,13 +1,12 @@
 package com.cmc.invitaservice.service.implement;
 
-import com.cmc.invitaservice.models.external.request.CreateDocumentRequest;
-import com.cmc.invitaservice.models.external.request.UpdateDocumentRequest;
-import com.cmc.invitaservice.models.external.response.GetAllDocumentResponse;
-import com.cmc.invitaservice.models.external.response.GetDocumentByTemplate;
+import com.cmc.invitaservice.models.request.CreateDocumentRequest;
+import com.cmc.invitaservice.models.request.UpdateDocumentRequest;
+import com.cmc.invitaservice.models.response.GetAllDocumentResponse;
+import com.cmc.invitaservice.models.response.GetDocumentByTemplate;
 import com.cmc.invitaservice.repositories.ApplicationUserRepository;
 import com.cmc.invitaservice.repositories.InvitaDocumentRepository;
 import com.cmc.invitaservice.repositories.InvitaTemplateRepository;
-import com.cmc.invitaservice.repositories.RefreshTokenRepository;
 import com.cmc.invitaservice.repositories.entities.ApplicationUser;
 import com.cmc.invitaservice.repositories.entities.InvitaDocument;
 import com.cmc.invitaservice.repositories.entities.InvitaTemplate;
@@ -32,17 +31,15 @@ public class DocumentServiceImplement implements DocumentService {
     private final ApplicationUserRepository applicationUserRepository;
     private final InvitaTemplateRepository invitaTemplateRepository;
     private final RoleService roleService;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     public DocumentServiceImplement(InvitaDocumentRepository invitaDocumentRepository,
                                     ApplicationUserRepository applicationUserRepository,
                                     InvitaTemplateRepository invitaTemplateRepository,
-                                    RoleService roleService, RefreshTokenRepository refreshTokenRepository){
+                                    RoleService roleService){
         this.invitaDocumentRepository = invitaDocumentRepository;
         this.applicationUserRepository = applicationUserRepository;
         this.invitaTemplateRepository = invitaTemplateRepository;
         this.roleService = roleService;
-        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     private String getUsername(){
@@ -50,17 +47,9 @@ public class DocumentServiceImplement implements DocumentService {
         return userDetails.getUsername();
     }
 
-    private ResponseEntity<GeneralResponse<Object>> checkLogin(String username){
-        if (refreshTokenRepository.findByUsername(username) == null)
-            return ResponseFactory.error(HttpStatus.valueOf(400), ResponseStatusEnum.UNKNOWN_ERROR);
-        return null;
-    }
-
     @Override
     public ResponseEntity<GeneralResponse<Object>> getAllDocument(){
         String username = getUsername();
-        ResponseEntity<GeneralResponse<Object>> check = checkLogin(username);
-        if (check != null) return  check;
         List<InvitaDocument> invitaDocumentList;
         if (roleService.hasRole("ROLE_ADMIN")) invitaDocumentList = invitaDocumentRepository.findAll();
         else invitaDocumentList = invitaDocumentRepository.findInvitaDocumentByApplicationUserUsername(username);
@@ -72,8 +61,6 @@ public class DocumentServiceImplement implements DocumentService {
     @Override
     public ResponseEntity<GeneralResponse<Object>> getDocumentByTemplate(Long id){
         String username = getUsername();
-        ResponseEntity<GeneralResponse<Object>> check = checkLogin(username);
-        if (check != null) return  check;
         List<InvitaDocument> invitaDocumentList;
         if (roleService.hasRole("ROLE_ADMIN")) invitaDocumentList = invitaDocumentRepository.findInvitaDocumentsByInvitaTemplate_Id(id);
         else invitaDocumentList = invitaDocumentRepository.findInvitaDocumentsByApplicationUser_UsernameAndInvitaTemplate_Id(username,id);
@@ -85,8 +72,6 @@ public class DocumentServiceImplement implements DocumentService {
     @Override
     public ResponseEntity<GeneralResponse<Object>> deleteDocument(Long id) {
         String username = getUsername();
-        ResponseEntity<GeneralResponse<Object>> check = checkLogin(username);
-        if (check != null) return  check;
         InvitaDocument invitaDocument = invitaDocumentRepository.findInvitaDocumentById(id);
         if (invitaDocument == null)
             return ResponseFactory.error(HttpStatus.valueOf(400), ResponseStatusEnum.DOCUMENT_EXIST);
@@ -104,8 +89,6 @@ public class DocumentServiceImplement implements DocumentService {
     @Override
     public ResponseEntity<GeneralResponse<Object>> getDocumentById(Long documentId){
         String username = getUsername();
-        ResponseEntity<GeneralResponse<Object>> check = checkLogin(username);
-        if (check != null) return  check;
         InvitaDocument invitaDocument = invitaDocumentRepository.findInvitaDocumentById(documentId);
         if (invitaDocument != null)
         if (roleService.hasRole("ROLE_ADMIN") || invitaDocument.getApplicationUser().getUsername().equals(username))
@@ -116,8 +99,6 @@ public class DocumentServiceImplement implements DocumentService {
     @Override
     public ResponseEntity<GeneralResponse<Object>> addDocument(CreateDocumentRequest createDocumentRequest){
         String username = getUsername();
-        ResponseEntity<GeneralResponse<Object>> check = checkLogin(username);
-        if (check != null) return  check;
         ApplicationUser applicationUser = applicationUserRepository.findByUsername(username);
         InvitaDocument invitaDocument = new InvitaDocument();
         invitaDocument.setInvitaTemplate(invitaTemplateRepository.findInvitaTemplateById(createDocumentRequest.getTemplateId()));
@@ -131,8 +112,6 @@ public class DocumentServiceImplement implements DocumentService {
     @Override
     public ResponseEntity<GeneralResponse<Object>> addSubDocument(Long templateId,Long documentId){
         String username = getUsername();
-        ResponseEntity<GeneralResponse<Object>> check = checkLogin(username);
-        if (check != null) return  check;
         ApplicationUser applicationUser = applicationUserRepository.findByUsername(username);
         InvitaDocument parent = invitaDocumentRepository.findInvitaDocumentById(documentId);
         InvitaTemplate invitaTemplate = invitaTemplateRepository.findInvitaTemplateById(templateId);
@@ -151,8 +130,6 @@ public class DocumentServiceImplement implements DocumentService {
     @Override
     public ResponseEntity<GeneralResponse<Object>> changeDocument(UpdateDocumentRequest updateDocumentRequest, Long documentId){
         String username = getUsername();
-        ResponseEntity<GeneralResponse<Object>> check = checkLogin(username);
-        if (check != null) return  check;
         InvitaDocument invitaDocument = invitaDocumentRepository.findInvitaDocumentById(documentId);
         if (invitaDocument.getApplicationUser().getUsername().equals(username) || roleService.hasRole("ROLE_ADMIN")) {
             invitaDocument.setUpdateDocumentRequest(updateDocumentRequest);

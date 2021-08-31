@@ -62,7 +62,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                     .antMatchers(HttpMethod.POST, RESET_PASSWORD_URL).permitAll()
                     .antMatchers(HttpMethod.GET, VERIFY_URL).permitAll()
                     .antMatchers(HttpMethod.POST, LOGOUT_URL).permitAll()
-                    .antMatchers(HttpMethod.POST,REFRESH_URL).permitAll()
+                    .antMatchers(HttpMethod.POST, "/auth/cmc/login").permitAll()
                     .antMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated();
         http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -1,7 +1,7 @@
 package com.cmc.invitaservice.repositories.entities;
 
-import com.cmc.invitaservice.models.external.request.CreateAccountRequest;
-import com.cmc.invitaservice.models.external.request.UpdateAccountRequest;
+import com.cmc.invitaservice.models.request.CreateAccountRequest;
+import com.cmc.invitaservice.models.request.UpdateAccountRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

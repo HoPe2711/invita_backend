@@ -1,9 +1,7 @@
 package com.cmc.invitaservice.controller.internal;
 
-import com.cmc.invitaservice.models.external.request.ChangePasswordRequest;
-import com.cmc.invitaservice.models.external.request.LogoutRequest;
-import com.cmc.invitaservice.models.external.request.RefreshTokenRequest;
-import com.cmc.invitaservice.models.external.response.RefreshTokenResponse;
+import com.cmc.invitaservice.models.request.ChangePasswordRequest;
+import com.cmc.invitaservice.models.request.LogoutRequest;
 import com.cmc.invitaservice.response.GeneralResponse;
 import com.cmc.invitaservice.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +34,4 @@ public class UserAuthController {
         return userService.logoutAccount(logoutRequest);
     }
 
-    @PostMapping("/auth/refresh")
-    public ResponseEntity<GeneralResponse<RefreshTokenResponse>> refresh(@RequestBody RefreshTokenRequest request){
-        return userService.refreshToken(request);
-    }
 }

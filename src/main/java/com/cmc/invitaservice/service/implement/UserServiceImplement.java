@@ -1,16 +1,13 @@
 package com.cmc.invitaservice.service.implement;
 
 import com.cmc.invitaservice.mailsender.EmailService;
-import com.cmc.invitaservice.models.external.request.*;
-import com.cmc.invitaservice.models.external.response.LoginResponse;
-import com.cmc.invitaservice.models.external.response.RefreshTokenResponse;
+import com.cmc.invitaservice.models.request.*;
+import com.cmc.invitaservice.models.response.LoginResponse;
 import com.cmc.invitaservice.redis.service.IRedisCaching;
 import com.cmc.invitaservice.repositories.ApplicationUserRepository;
-import com.cmc.invitaservice.repositories.RefreshTokenRepository;
 import com.cmc.invitaservice.repositories.RoleRepository;
 import com.cmc.invitaservice.repositories.entities.ApplicationUser;
 import com.cmc.invitaservice.repositories.entities.ERole;
-import com.cmc.invitaservice.repositories.entities.RefreshToken;
 import com.cmc.invitaservice.repositories.entities.Role;
 import com.cmc.invitaservice.response.GeneralResponse;
 import com.cmc.invitaservice.response.ResponseFactory;
@@ -18,9 +15,7 @@ import com.cmc.invitaservice.response.ResponseStatusEnum;
 import com.cmc.invitaservice.security.filter.JWT.JwtUtils;
 import com.cmc.invitaservice.security.filter.service.UserDetailsImplement;
 import com.cmc.invitaservice.service.UserService;
-import com.cmc.invitaservice.service.config.RefreshTokenService;
 import com.cmc.invitaservice.service.config.ValidationService;
-import com.cmc.invitaservice.service.config.refreshToken.TokenRefreshException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -66,15 +61,11 @@ public class UserServiceImplement implements UserService {
 
     private final AuthenticationManager authenticationManager;
 
-    private final RefreshTokenRepository refreshTokenRepository;
-
     private final JwtUtils jwtUtils;
 
     private final EmailService emailService;
 
-    private final RefreshTokenService refreshTokenService;
-
-    public UserServiceImplement(ApplicationUserRepository applicationUserRepository, BCryptPasswordEncoder bCryptPasswordEncoder, RoleRepository roleRepository, ValidationService validationService, IRedisCaching iRedisCaching, AuthenticationManager authenticationManager, JwtUtils jwtUtils, EmailService emailService, RefreshTokenRepository refreshTokenRepository, RefreshTokenService refreshTokenService) {
+    public UserServiceImplement(ApplicationUserRepository applicationUserRepository, BCryptPasswordEncoder bCryptPasswordEncoder, RoleRepository roleRepository, ValidationService validationService, IRedisCaching iRedisCaching, AuthenticationManager authenticationManager, JwtUtils jwtUtils, EmailService emailService) {
         this.applicationUserRepository = applicationUserRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.roleRepository = roleRepository;
@@ -83,8 +74,6 @@ public class UserServiceImplement implements UserService {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.emailService = emailService;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.refreshTokenService = refreshTokenService;
     }
 
     private Long addAccount(CreateAccountRequest createAccountRequest) {
@@ -137,33 +126,16 @@ public class UserServiceImplement implements UserService {
     public ResponseEntity<GeneralResponse<Object>> loginAccount(LoginRequest loginRequest) {
         ResponseEntity<GeneralResponse<Object>> loginResult = checkAccount(loginRequest);
         if (loginResult != null) return loginResult;
-        if (refreshTokenRepository.findByUsername(loginRequest.getUsername()) != null)
-            return ResponseFactory.error(HttpStatus.valueOf(400), ResponseStatusEnum.ACCOUNT_LOGGED_IN);
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJWT(authentication);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(loginRequest.getUsername());
-        String jwt1 = refreshToken.getToken();
         UserDetailsImplement userDetailsImplement = (UserDetailsImplement) authentication.getPrincipal();
         List<String> roles = userDetailsImplement.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-        LoginResponse loginResponse = new LoginResponse(jwt1, jwt, userDetailsImplement.getId(), userDetailsImplement.getUsername(), userDetailsImplement.getEmail(), roles);
+        LoginResponse loginResponse = new LoginResponse( jwt, userDetailsImplement.getId(), userDetailsImplement.getUsername(), userDetailsImplement.getEmail(), roles);
         return ResponseFactory.success(loginResponse, LoginResponse.class);
-    }
-
-    @Override
-    public ResponseEntity<GeneralResponse<RefreshTokenResponse>> refreshToken(RefreshTokenRequest request) {
-        String requestRefreshToken = request.getRefreshToken();
-        return refreshTokenService.findByToken(requestRefreshToken)
-                .map(refreshTokenService::verifyExpiration)
-                .map(RefreshToken -> {
-                    String token = jwtUtils.generateJWTByUsername(RefreshToken.getUsername());
-                    return ResponseFactory.success(new RefreshTokenResponse(token));
-                })
-                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
-                        "Refresh token is wrong!"));
     }
 
     private ResponseEntity<GeneralResponse<Object>> validateSignUp(CreateAccountRequest createAccountRequest){
@@ -197,8 +169,8 @@ public class UserServiceImplement implements UserService {
         String userId = (String) iRedisCaching.getFromOpsValue(token);
         if (userId == null)
             return ResponseFactory.error(HttpStatus.valueOf(403), ResponseStatusEnum.UNKNOWN_ERROR);
-        ApplicationUser applicationUser = applicationUserRepository.findApplicationUserById(Long.valueOf(userId));
-        applicationUser.setStatus(true);
+            ApplicationUser applicationUser = applicationUserRepository.findApplicationUserById(Long.valueOf(userId));
+            applicationUser.setStatus(true);
         applicationUserRepository.save(applicationUser);
         iRedisCaching.removeFromOpsValue(token);
         return ResponseFactory.success(applicationUser, ApplicationUser.class);
@@ -232,7 +204,6 @@ public class UserServiceImplement implements UserService {
 
     @Override
     public ResponseEntity<GeneralResponse<Object>> logoutAccount(LogoutRequest logoutRequest){
-        refreshTokenRepository.deleteByToken(logoutRequest.getToken());
         return ResponseFactory.success("Logout successfully!");
     }
 }

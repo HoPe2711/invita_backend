@@ -1,4 +1,4 @@
-package com.cmc.invitaservice.models.external.response;
+package com.cmc.invitaservice.models.response;
 
 import com.cmc.invitaservice.repositories.entities.InvitaDocument;
 import lombok.Data;

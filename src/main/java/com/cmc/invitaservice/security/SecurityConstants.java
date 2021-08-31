@@ -2,7 +2,7 @@ package com.cmc.invitaservice.security;
 
 public class SecurityConstants {
     public static final String SECRET = "CMC1236547890";
-    public static final long EXPIRATION_TIME = 30_000;
+    public static final long EXPIRATION_TIME = 86400_000;
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER_STRING = "Authorization";
     public static final String SIGN_UP_URL = "/auth/sign-up";
@@ -12,5 +12,4 @@ public class SecurityConstants {
     public static final String MANAGEMENT_MAIL = "invitacmcapp2021@gmail.com";
     public static final String VERIFY_URL = "/auth/verify";
     public static final String LOGOUT_URL = "/auth/logout";
-    public static final String REFRESH_URL = "/auth/refresh";
 }

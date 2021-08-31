@@ -1,9 +1,9 @@
 package com.cmc.invitaservice.controller.external;
 
-import com.cmc.invitaservice.models.external.request.CreateAccountRequest;
-import com.cmc.invitaservice.models.external.request.ForgotPasswordRequest;
-import com.cmc.invitaservice.models.external.request.LoginRequest;
-import com.cmc.invitaservice.models.external.request.ResetPasswordRequest;
+import com.cmc.invitaservice.models.request.CreateAccountRequest;
+import com.cmc.invitaservice.models.request.ForgotPasswordRequest;
+import com.cmc.invitaservice.models.request.LoginRequest;
+import com.cmc.invitaservice.models.request.ResetPasswordRequest;
 import com.cmc.invitaservice.response.GeneralResponse;
 import com.cmc.invitaservice.service.UserService;
 import lombok.extern.slf4j.Slf4j;

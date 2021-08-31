@@ -19,6 +19,7 @@ public class JwtUtils {
 
     public String generateJWTByUsername(String username){
         return Jwts.builder()
+                .setHeaderParam("typ", "JWT")
                 .setSubject((username))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + EXPIRATION_TIME))

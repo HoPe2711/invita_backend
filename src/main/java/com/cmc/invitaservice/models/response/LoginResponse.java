@@ -1,4 +1,4 @@
-package com.cmc.invitaservice.models.external.response;
+package com.cmc.invitaservice.models.response;
 
 import lombok.Data;
 
@@ -8,7 +8,6 @@ import static com.cmc.invitaservice.security.SecurityConstants.TOKEN_PREFIX;
 
 @Data
 public class LoginResponse {
-    private String refreshToken;
     private String token;
     private String type = TOKEN_PREFIX;
     private Long id;
@@ -16,8 +15,7 @@ public class LoginResponse {
     private String email;
     private List<String> roles;
 
-    public LoginResponse(String refreshToken, String token, Long id, String username, String email, List<String> roles) {
-        this.refreshToken = refreshToken;
+    public LoginResponse( String token, Long id, String username, String email, List<String> roles) {
         this.token = token;
         this.id = id;
         this.username =username;

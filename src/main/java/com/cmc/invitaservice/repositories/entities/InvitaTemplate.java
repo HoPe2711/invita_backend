@@ -1,7 +1,7 @@
 package com.cmc.invitaservice.repositories.entities;
 
 
-import com.cmc.invitaservice.models.external.request.CreateTemplateRequest;
+import com.cmc.invitaservice.models.request.CreateTemplateRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

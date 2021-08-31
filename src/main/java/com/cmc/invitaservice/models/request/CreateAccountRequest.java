@@ -1,10 +1,12 @@
-package com.cmc.invitaservice.models.external.request;
+package com.cmc.invitaservice.models.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
+@AllArgsConstructor
 public class CreateAccountRequest {
     @NotBlank
     private String username;

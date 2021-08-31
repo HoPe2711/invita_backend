@@ -1,7 +1,7 @@
 package com.cmc.invitaservice.service;
 
-import com.cmc.invitaservice.models.external.request.CreateDocumentRequest;
-import com.cmc.invitaservice.models.external.request.UpdateDocumentRequest;
+import com.cmc.invitaservice.models.request.CreateDocumentRequest;
+import com.cmc.invitaservice.models.request.UpdateDocumentRequest;
 import com.cmc.invitaservice.response.GeneralResponse;
 import org.springframework.http.ResponseEntity;
 

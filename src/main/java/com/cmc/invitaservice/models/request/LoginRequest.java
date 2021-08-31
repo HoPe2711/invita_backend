@@ -1,14 +1,13 @@
-package com.cmc.invitaservice.models.external.request;
+package com.cmc.invitaservice.models.request;
 
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class ForgotPasswordRequest {
+public class LoginRequest {
     @NotBlank
     private String username;
     @NotBlank
-    private String email;
+    private String password;
 }
-
